@@ -17,20 +17,35 @@
     <script src="lib/d3.layout.cloud.js"></script>
     <script type="text/javascript">
         var text_string = "Of course that’s your contention. You’re a first year grad student. You just got finished readin’ some Marxian historian, Pete Garrison probably. You’re gonna be convinced of that ’til next month when you get to James Lemon and then you’re gonna be talkin’ about how the economies of Virginia and Pennsylvania were entrepreneurial and capitalist way back in 1740. That’s gonna last until next year. You’re gonna be in here regurgitating Gordon Wood, talkin’ about, you know, the Pre-Revolutionary utopia and the capital-forming effects of military mobilization… ‘Wood drastically underestimates the impact of social distinctions predicated upon wealth, especially inherited wealth.’ You got that from Vickers, Work in Essex County, page 98, right? Yeah, I read that, too. Were you gonna plagiarize the whole thing for us? Do you have any thoughts of your own on this matter? Or do you, is that your thing? You come into a bar. You read some obscure passage and then pretend, you pawn it off as your own, as your own idea just to impress some girls and embarrass my friend? See, the sad thing about a guy like you is in 50 years, you’re gonna start doin’ some thinkin’ on your own and you’re gonna come up with the fact that there are two certainties in life. One: don’t do that. And two: you dropped a hundred and fifty grand on a fuckin’ education you coulda got for a dollar fifty in late charges at the public library.";
-        var csv_file = "2021-01-01_top1000trigrams.csv"
+
+        var date = "2021-01-16"
+
+        var csv_file = "Top30_daily/"+ date + "_top1000trigrams_top30.csv"
         var fill = d3.scale.category20();
         var dataContainer = {}
-        d3.csv("2021-01-01_top1000trigrams.csv", function(data) {
+        var rank = 31
+        var colors = ["crimson", "coral", "rosybrown", "lightsalmon", "blueviolet", "maroon"]
+
+        d3.csv(csv_file, function(data) {
             data.forEach(function(d) {
                 d.key = d.gram
-                d.value = Math.ceil(Math.log2(d.counts))
-                dataContainer[d.key] = d.value
+                if (rank == 31){
+                    d.value = 50;
+                } else {
+                    d.value = rank;
+                }
+                if (rank >= 1){
+                    dataContainer[d.key] = d.value
+                }
+                rank -= 1
             })
+
+            
 
             console.log(dataContainer, 1);
             var svg_location = "#chart";
-            var width = 500
-            var height = 500
+            var width = 800
+            var height = 800
 
             var fill = d3.scale.category20();
 
@@ -47,21 +62,21 @@
                 .timeInterval(20)
                 .words(word_entries)
                 .fontSize(function(d) {
-                    return (+d.value);
+                    return Math.max(10, d.value);
                 })
                 .text(function(d) {
                     return d.key;
                 })
                 .rotate(function() {
-                    return ~~(Math.random() * 2) * 90;
+                    return  ~~(Math.random() * 2) * 90;
                 })
                 .font("Impact")
                 .on("end", draw)
                 .start();
             // d3.layout.cloud().stop();
         })
-        width = 500
-        height = 500
+        width = 800
+        height = 800
 
         function draw(words) {
             d3.select("body").append("svg")
@@ -74,15 +89,15 @@
                 .data(words)
                 .enter().append("text")
                 .style("font-size", function(d) {
-                    return d.value + "px";
+                    return Math.max(10, d.value) + "px";
                 })
                 .style("font-family", "Impact")
-                .style("fill", function(d, i) {
-                    return fill(i);
+                .style("fill", function(d) {
+                    return colors[Math.floor(Math.random()*colors.length)]
                 })
                 .attr("text-anchor", "middle")
                 .attr("transform", function(d) {
-                    return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+                    return "translate(" + [d.x + 300, d.y + 300] + ")rotate(" + d.rotate + ")";
                 })
                 .text(function(d) {
                     return d.key;
